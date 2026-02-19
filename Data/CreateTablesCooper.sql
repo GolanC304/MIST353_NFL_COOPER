@@ -5,6 +5,13 @@ use master;
   use MIST_RDB_Cooper;
  -- Create tables for first iteration
 
+if (OBJECT_ID('Team') is not null)
+    drop table Team;
+
+ if (OBJECT_ID('ConferenceDivision') is not null)
+    drop table ConferenceDivision;
+
+
  create TABLE ConferenceDivision(
     ConferenceDivisionID INT identity(1,1)
         constraint PK_ConferenceDivision PRIMARY KEY,
@@ -13,8 +20,8 @@ use master;
     Division NVARCHAR(50) NOT NULL
         constraint CK_DivisonNames CHECK (Division IN ('East', 'North', 'South', 'West'))
  );
-
- create TABLE Team(
+ 
+create TABLE Team(
     TeamID INT identity(1,1)  -- starts at 1 and goes up by 1 each time
         constraint PK_Team PRIMARY KEY, -- specific rule for that variable
     TeamName NVARCHAR(50) NOT NULL,
@@ -24,5 +31,13 @@ use master;
         constraint FK_Team_ConferenceDivision FOREIGN KEY REFERENCES ConferenceDivision(ConferenceDivisionID)
  );
 
+
+/* // No reason to run this unless its millions of code
+alter table ConferenceDivision
+    NOCHECK CONSTRAINT CK_ConferenceNames;
+
+alter table ConferenceDivision
+    Check COnstraint CK_ConferenceNames;
+*/
  
 
