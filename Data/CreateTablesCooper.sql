@@ -8,7 +8,7 @@
 
 -- Step 1: Create a login at the server level
 
-
+/*
 
 CREATE LOGIN NandaSurendra
 
@@ -39,7 +39,7 @@ GRANT EXECUTE TO NandaSurendra;
 -- Read access to all tables
 
 GRANT SELECT TO NandaSurendra;
-
+*/
 -- Database
 if (OBJECT_ID('Team') is not null)
     drop table Team;

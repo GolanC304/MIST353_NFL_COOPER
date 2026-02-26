@@ -1,5 +1,17 @@
-USE MIST_RDB_Cooper;
 
+
+/*CREATE PROCEDURE MIST353NFLCooper_AddTeam
+    @TName NVARCHAR(50),
+    @TCityState NVARCHAR(50),
+    @TColors NVARCHAR(50),
+    @ConferenceDivID INT
+AS
+BEGIN
+    INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+    VALUES (@TName, @TCityState, @TColors, @ConferenceDivID);
+END;
+GO 
+*/
 insert into ConferenceDivision (Conference, Division)
 VALUES
 ('AFC', 'East'),
@@ -94,3 +106,7 @@ insert into Team(TeamName,TeamCityState,TeamColors, ConferenceDivisionID)
 select 'Washington Commanders', 'Ashburn, VA', '', ConferenceDivisionID
 from ConferenceDivision
 where Conference = 'NFC' AND Division = 'East';
+
+
+-- NFC South
+EXEC MIST353NFLCooper_AddTeam 'Tampa Bay Buccaneers', 'Tampa Bay', 'Red/White', 1;
