@@ -9,7 +9,17 @@ from TEAM as t;
 
 
 
-select t.TeamName, c.Conference, c.Division
+select t.TeamName, c.Conference, c.Division, t.TeamColors
 from Team as t
 inner join ConferenceDivision as c on T.ConferenceDivisionID=C.ConferenceDivisionID
 where Conference = 'AFC' and Division = 'East';
+
+
+
+declare @myTeamName nvarchar(50) = 'New England Patriots';
+
+
+select OtherTeam.TeamName
+from Team MyTeam
+inner join  Team OtherTeam.ConferenceDivisionID on MyTeam.ConferenceDivisionID=OtherTeam.ConferenceDivisionID
+where MyTeam.TeamName =@myTeamName AND OtherTeam.TeamName != @myTeamName;
