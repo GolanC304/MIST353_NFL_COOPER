@@ -1,6 +1,6 @@
 -- Create a database for NFL app
  use master
- create DATABASE MIST_RDB_Cooper;
+ -- create DATABASE MIST_RDB_Cooper;
  -- DROP database NFL_RDB_Cooper;
 use MIST_RDB_Cooper;
  -- Create tables for first iteration
