@@ -5,6 +5,28 @@ use master;
   use MIST_RDB_Cooper;
  -- Create tables for first iteration
 
+
+-- step 1 
+
+
+-- step 2 switch to your target databse
+
+
+-- step 3: create a database user mapped to the login
+
+--create user NandaSurendraDemo 
+
+-- for login NanaSurendraDemo;
+
+-- step 4: Grant EXECUTE permission on all stored procedures and UDF
+
+-- grant execute to NandaSurendraDemo;
+
+-- read acceess to all tables
+
+-- grant select to NandaSurendraDemo;
+
+-- Database
 if (OBJECT_ID('Team') is not null)
     drop table Team;
 
