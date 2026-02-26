@@ -1,30 +1,44 @@
 -- Create a database for NFL app
- use master
- -- create DATABASE MIST_RDB_Cooper;
+ --use master
+  --create DATABASE MIST_RDB_Cooper;
  -- DROP database NFL_RDB_Cooper;
-use MIST_RDB_Cooper;
+-- use MIST_RDB_Cooper;
  -- Create tables for first iteration
 
 
--- step 1 
+-- Step 1: Create a login at the server level
 
 
--- step 2 switch to your target databse
+
+CREATE LOGIN NandaSurendra
+
+WITH PASSWORD = 'MI$T353Instructor';
 
 
--- step 3: create a database user mapped to the login
 
---create user NandaSurendraDemo 
+-- Step 2: Switch to your target database
 
--- for login NanaSurendraDemo;
+-- USE MIST353_NFL_RDB_Lastname;
 
--- step 4: Grant EXECUTE permission on all stored procedures and UDF
 
--- grant execute to NandaSurendraDemo;
 
--- read acceess to all tables
+-- Step 3: Create a database user mapped to the login
 
--- grant select to NandaSurendraDemo;
+CREATE USER NandaSurendra
+
+FOR LOGIN NandaSurendra;
+
+
+
+-- Step 4: Grant EXECUTE permission on all stored procedures and UDFs
+
+GRANT EXECUTE TO NandaSurendra;
+
+
+
+-- Read access to all tables
+
+GRANT SELECT TO NandaSurendra;
 
 -- Database
 if (OBJECT_ID('Team') is not null)

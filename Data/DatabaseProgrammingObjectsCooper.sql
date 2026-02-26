@@ -8,6 +8,12 @@ select count(t.TEAMID) as "ID's"
 from TEAM as t;
 
 
+create procedure NFLTeamNames
+@NFLTeam nvarchar(50) 
+@NFLCity nvarchar(50)
+
+
+
 
 select t.TeamName, c.Conference, c.Division, t.TeamColors
 from Team as t
