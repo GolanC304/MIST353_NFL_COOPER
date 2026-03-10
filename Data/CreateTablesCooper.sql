@@ -7,39 +7,39 @@
 
 
 -- Step 1: Create a login at the server level
-
 /*
-
 CREATE LOGIN NandaSurendra
-
 WITH PASSWORD = 'MI$T353Instructor';
-
-
-
 -- Step 2: Switch to your target database
-
 -- USE MIST353_NFL_RDB_Lastname;
-
-
-
 -- Step 3: Create a database user mapped to the login
-
 CREATE USER NandaSurendra
-
 FOR LOGIN NandaSurendra;
-
-
-
 -- Step 4: Grant EXECUTE permission on all stored procedures and UDFs
-
 GRANT EXECUTE TO NandaSurendra;
-
-
-
 -- Read access to all tables
-
 GRANT SELECT TO NandaSurendra;
 */
+
+ -- =========== API Login =============
+-- Step 1: Create a login at the server level
+/*
+
+CREATE LOGIN APILogin -- NAnda
+WITH PASSWORD = 'MI$T353Instructor';
+-- Step 2: Switch to your target database
+-- Step 3: Create a database user mapped to the login
+*/
+--REATE USER APIUser
+
+--FOR LOGIN APILogin;
+-- Step 4: Grant EXECUTE permission on all stored procedures and UDFs
+--GRANT EXECUTE TO APIUser;
+-- Read access to all tables
+--GRANT SELECT TO APIUser;
+
+ -- ===================================
+ 
 -- Database
 if (OBJECT_ID('Team') is not null)
     drop table Team;
@@ -68,12 +68,12 @@ create TABLE Team(
  );
 
 
-/* // No reason to run this unless its millions of code
-alter table ConferenceDivision
-    NOCHECK CONSTRAINT CK_ConferenceNames;
+ -- No reason to run this unless its millions of code
+-- alter table ConferenceDivision
+   -- NOCHECK CONSTRAINT CK_ConferenceNames;
 
-alter table ConferenceDivision
-    Check COnstraint CK_ConferenceNames;
-*/
+ --alter table ConferenceDivision
+   -- Check COnstraint CK_ConferenceNames;
+
  
 

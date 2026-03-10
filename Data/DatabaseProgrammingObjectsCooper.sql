@@ -1,5 +1,5 @@
 
-CREATE PROCEDURE MIST353NFLCooper_AddTeam
+/*CREATE PROCEDURE MIST353NFLCooper_AddTeam
     @TName NVARCHAR(50),
     @TCityState NVARCHAR(50),
     @TColors NVARCHAR(50),
@@ -34,7 +34,7 @@ BEGIN
 END;
 GO
 
-
+*/
 
 DECLARE @myTeamName NVARCHAR(50) = 'New England Patriots';
 

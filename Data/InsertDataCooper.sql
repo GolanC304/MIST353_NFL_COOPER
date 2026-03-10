@@ -1,6 +1,6 @@
 
 
-/*CREATE PROCEDURE MIST353NFLCooper_AddTeam
+CREATE PROCEDURE MIST353NFLCooper_AddTeam
     @TName NVARCHAR(50),
     @TCityState NVARCHAR(50),
     @TColors NVARCHAR(50),
@@ -11,7 +11,7 @@ BEGIN
     VALUES (@TName, @TCityState, @TColors, @ConferenceDivID);
 END;
 GO 
-*/
+
 insert into ConferenceDivision (Conference, Division)
 VALUES
 ('AFC', 'East'),
