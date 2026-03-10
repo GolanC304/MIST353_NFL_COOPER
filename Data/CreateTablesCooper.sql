@@ -30,7 +30,7 @@ WITH PASSWORD = 'MI$T353Instructor';
 -- Step 2: Switch to your target database
 -- Step 3: Create a database user mapped to the login
 */
---REATE USER APIUser
+--CREATE USER APIUser;
 
 --FOR LOGIN APILogin;
 -- Step 4: Grant EXECUTE permission on all stored procedures and UDFs
