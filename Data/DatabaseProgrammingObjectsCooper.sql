@@ -36,7 +36,7 @@ GO
 
 */
 
-DECLARE @myTeamName NVARCHAR(50) = 'New England Patriots';
+/* DECLARE @myTeamName NVARCHAR(50) = 'New England Patriots';
 
 SELECT OtherTeam.TeamName
 FROM Team AS MyTeam
@@ -45,3 +45,15 @@ INNER JOIN Team AS OtherTeam
 WHERE MyTeam.TeamName = @myTeamName 
   AND OtherTeam.TeamName != @myTeamName;
 GO
+*/
+SELECT * FROM Team T
+JOIN ConferenceDivision CD
+    ON T.ConferenceDivisionID = CD.ConferenceDivisionID
+WHERE CD.Conference = 'NFC' AND CD.Division = 'West';
+
+SELECT * FROM ConferenceDivision;
+
+SELECT T.TeamName, CD.Conference, CD.Division
+FROM Team T
+JOIN ConferenceDivision CD
+    ON T.ConferenceDivisionID = CD.ConferenceDivisionID;
