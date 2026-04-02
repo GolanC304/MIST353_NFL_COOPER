@@ -1,16 +1,37 @@
+import streamlit as st
 import requests
 
 BASE_URL = "http://127.0.0.1:8000"
 
-def test_root():
-    response = requests.get(f"{BASE_URL}/")
-    print("GET / →", response.status_code, response.json())
+st.title("NFL Teams UI")
 
-def test_db():
-    response = requests.get(f"{BASE_URL}/test-db")
-    print("GET /test-db →", response.status_code, response.json())
+st.header("Get Teams by Conference and Division")
 
-if __name__ == "__main__":
-    print("Testing FastAPI endpoints...")
-    test_root()
-    test_db()
+conference = st.selectbox("Select Conference", ["AFC", "NFC"])
+division = st.selectbox("Select Division", ["North", "South", "East", "West"])
+
+if st.button("Get Teams"):
+    response = requests.get(
+        f"{BASE_URL}/teams",
+        params={"conference": conference, "division": division}
+    )
+    if response.status_code == 200:
+        st.json(response.json())
+    else:
+        st.error("Error fetching teams")
+
+
+
+st.header("Get Teams in Same Division")
+
+team_name = st.text_input("Enter Team Name")
+
+if st.button("Find Teams"):
+    response = requests.get(
+        f"{BASE_URL}/teams/same_division",
+        params={"team_name": team_name}
+    )
+    if response.status_code == 200:
+        st.json(response.json())
+    else:
+        st.error("Error fetching teams")
