@@ -4,7 +4,7 @@
 -- USE master;
 -- CREATE DATABASE MIST_RDB_Cooper;
 GO
---test
+--test1ß
 -- ===================================
 -- Drop tables if they exist
 -- ===================================
