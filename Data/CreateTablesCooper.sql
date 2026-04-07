@@ -1,20 +1,15 @@
--- ===================================
 
--- ===================================
 -- USE master;
 -- CREATE DATABASE MIST_RDB_Cooper;
 GO
---test
--- ===================================
+--test1
 -- Drop tables if they exist
--- ===================================
+
 IF OBJECT_ID('Team', 'U') IS NOT NULL DROP TABLE Team;
 IF OBJECT_ID('ConferenceDivision', 'U') IS NOT NULL DROP TABLE ConferenceDivision;
 GO
 
--- ===================================
 -- Create tables
--- ===================================
 CREATE TABLE ConferenceDivision (
     ConferenceDivisionID INT IDENTITY(1,1) PRIMARY KEY,
     Conference NVARCHAR(50) NOT NULL
@@ -35,9 +30,7 @@ CREATE TABLE Team (
 );
 GO
 
--- ===================================
  --teams by conference/division
--- ===================================
 CREATE OR ALTER PROCEDURE procGetTeamsByConferenceDivision
 (
     @ConferenceName NVARCHAR(50) = NULL,
@@ -54,9 +47,9 @@ BEGIN
 END
 GO
 
--- ===================================
+
 -- conference/division as a specific team
--- ===================================
+
 CREATE OR ALTER PROCEDURE procGetTeamsInSameConferenceDivisionAsSpecifiedTeam
 (
     @TeamName NVARCHAR(50)

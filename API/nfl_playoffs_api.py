@@ -51,3 +51,26 @@ def get_teams_same_division(team_name: str):
 @app.get("/")
 def root():
     return {"message": "Hello, World!"}
+
+@app.get("/teams/by_conference/")
+def get_teams_by_conference(conference: str):
+    """
+    Returns all teams in the specified conference along with their divisions.
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "EXEC GetTeamsByConference @conference=?",  # Your new stored procedure
+        conference
+    )
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return [
+        {
+            "TeamName": row.TeamName,
+            "Division": row.Division
+        }
+        for row in rows
+    ]

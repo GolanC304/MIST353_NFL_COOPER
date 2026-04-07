@@ -6,7 +6,6 @@ IF OBJECT_ID('MIST353NFLCooper_AddTeam', 'P') IS NOT NULL
     DROP PROCEDURE MIST353NFLCooper_AddTeam;
 GO
 
--- Create tables if needed
 
 GO
 

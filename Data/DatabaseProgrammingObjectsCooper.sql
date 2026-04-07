@@ -1,20 +1,27 @@
 
-/*CREATE PROCEDURE MIST353NFLCooper_AddTeam
+-- Procedure: Add a New Team
+
+CREATE OR ALTER PROCEDURE MIST353NFLCooper_AddTeam
+(
     @TName NVARCHAR(50),
     @TCityState NVARCHAR(50),
     @TColors NVARCHAR(50),
     @ConferenceDivID INT
+)
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
     VALUES (@TName, @TCityState, @TColors, @ConferenceDivID);
-END;
-GO   
+END
+GO
 
-
-
-CREATE PROCEDURE usp_GetTeamsByDivision
+-- Procedure: Get Teams by Division Only
+CREATE OR ALTER PROCEDURE usp_GetTeamsByDivision
+(
     @Division NVARCHAR(50)
+)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -31,21 +38,31 @@ BEGIN
         ON T.ConferenceDivisionID = CD.ConferenceDivisionID
     WHERE CD.Division = @Division
     ORDER BY T.TeamName;
-END;
+END
 GO
 
-*/
 
-/* DECLARE @myTeamName NVARCHAR(50) = 'New England Patriots';
+--Get Teams by Conference Only
+CREATE OR ALTER PROCEDURE GetTeamsByConference
+(
+    @conference NVARCHAR(50)
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
 
-SELECT OtherTeam.TeamName
-FROM Team AS MyTeam
-INNER JOIN Team AS OtherTeam 
-    ON MyTeam.ConferenceDivisionID = OtherTeam.ConferenceDivisionID
-WHERE MyTeam.TeamName = @myTeamName 
-  AND OtherTeam.TeamName != @myTeamName;
+    SELECT DISTINCT
+        T.TeamName,
+        CD.Division
+    FROM Team T
+    INNER JOIN ConferenceDivision CD
+        ON T.ConferenceDivisionID = CD.ConferenceDivisionID
+    WHERE CD.Conference = @conference
+    ORDER BY CD.Division, T.TeamName;
+END
 GO
-*/
+
+
 SELECT * FROM Team T
 JOIN ConferenceDivision CD
     ON T.ConferenceDivisionID = CD.ConferenceDivisionID
