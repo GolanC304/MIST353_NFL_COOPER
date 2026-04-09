@@ -1,8 +1,13 @@
 # nfl_playoffs_api.py
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from get_db_connection import get_db_connection
 
 app = FastAPI(title="NFL Playoffs API")
+
+
+@app.get("/")
+def root():
+    return {"message": "Hello, World!"}
 
 
 @app.get("/teams/")
@@ -48,10 +53,6 @@ def get_teams_same_division(team_name: str):
     ]
 
 
-@app.get("/")
-def root():
-    return {"message": "Hello, World!"}
-
 @app.get("/teams/by_conference/")
 def get_teams_by_conference(conference: str):
     """
@@ -60,13 +61,12 @@ def get_teams_by_conference(conference: str):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "EXEC GetTeamsByConference @conference=?",  # Your new stored procedure
+        "EXEC GetTeamsByConference @conference=?",
         conference
     )
     rows = cursor.fetchall()
     cursor.close()
     conn.close()
-
     return [
         {
             "TeamName": row.TeamName,
@@ -74,3 +74,79 @@ def get_teams_by_conference(conference: str):
         }
         for row in rows
     ]
+
+
+@app.get("/fans/teams/")
+def get_teams_for_fan(fan_id: int = None, email: str = None):
+    """
+    Returns all teams associated with a fan.
+    Look up by fan_id, email, or both.
+    """
+    if fan_id is None and email is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Provide at least one of: fan_id or email"
+        )
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "EXEC procGetTeamsForSpecifiedFan @NFLFanID=?, @Email=?",
+        fan_id, email
+    )
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    if not rows:
+        raise HTTPException(status_code=404, detail="No fan or teams found for the given input.")
+
+    return [
+        {
+            "Firstname": row.Firstname,
+            "Lastname": row.Lastname,
+            "Email": row.Email,
+            "TeamName": row.TeamName,
+            "TeamColors": row.TeamColors,
+            "Conference": row.Conference,
+            "Division": row.Division,
+            "PrimaryTeam": bool(row.PrimaryTeam)
+        }
+        for row in rows
+    ]
+
+
+@app.get("/validate_user/")
+def validate_user(email: str, password: str):
+    """
+    Validates a user by email and password hash check.
+    Returns basic user info if valid.
+    """
+    import hashlib
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT AppUserID, Firstname, Lastname, Email, PasswordHash, UserRole FROM AppUser WHERE Email = ?",
+        email
+    )
+    row = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if row is None:
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    # Hash the incoming password the same way it was stored
+    password_hash = hashlib.sha256(password.encode()).digest()
+
+    if bytes(row.PasswordHash) != password_hash:
+        raise HTTPException(status_code=401, detail="Invalid password.")
+
+    return {
+        "AppUserID": row.AppUserID,
+        "Firstname": row.Firstname,
+        "Lastname": row.Lastname,
+        "Email": row.Email,
+        "UserRole": row.UserRole
+    }

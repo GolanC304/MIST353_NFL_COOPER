@@ -46,6 +46,53 @@ BEGIN
       AND (@DivisionName IS NULL OR CD.Division = @DivisionName);
 END
 GO
+Create table AppUser(
+        AppUserID INT identity(1,1)
+            constraint PK_AppUser PRIMARY KEY,
+        Firstname NVARCHAR(50) NOT NULL,
+        Lastname NVARCHAR(50) NOT NULL,
+        Email NVARCHAR(100) NOT NULL
+            constraint UK_AppUSerEmail UNIQUE,
+        PasswordHash VARBINARY(200) NOT NULL,
+        Phone NVARCHAR(20) NULL,
+        UserRole NVARCHAR(20) NOT NULL
+            constraint CK_AppUserRole CHECK (UserRole in (N'NFLAdmin',N'NFLFAN'))
+);
+GO
+create table NFLAdmin(
+    NFLAdminID INT
+        constraint PK_NFLAdmin PRIMARY KEY
+        constraint FK_NFLAdmin_AppUser FOREIGN KEY REFERENCES AppUser(AppUserID)
+);
+
+
+GO
+create table NFLFAN(
+    NFLFanID INT   
+        Constraint PK_NFLFAN PRIMARY KEY
+        constraint FK_NFL_Fan_AppUser FOREIGN KEY REFERENCES AppUser(AppUserID)
+);
+
+GO
+create table FanTeam(
+    FanTeamID INT identity(1,1)
+        constraint PK_FanTeam PRIMARY KEY,
+    NFLFanID INT NOT NULL
+        constraint FK_FanTeam_NFLFan FOREIGN KEY REFERENCES NFLFAN(NFLFANID),
+    TeamID INT NOT NULL 
+        constraint FK_FanTeam_Team FOREIGN KEY REFERENCES Team(TeamID),
+        constraint UK_FanTeam UNIQUE (NFLFanID, TeamID),
+    PrimaryTeam BIT NOT NULL
+
+
+
+
+)
+
+
+
+GO
+
 
 
 -- conference/division as a specific team

@@ -71,6 +71,111 @@ SELECT 'Buffalo Bills', 'Buffalo, NY', 'Blue/Red/White', ConferenceDivisionID
 FROM ConferenceDivision
 WHERE Conference='AFC' AND Division='East';
 
+-- AFC South
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Houston Texans', 'Houston, TX', 'Deep Red/Navy/White', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='AFC' AND Division='South';
+
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Indianapolis Colts', 'Indianapolis, IN', 'Blue/White', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='AFC' AND Division='South';
+
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Jacksonville Jaguars', 'Jacksonville, FL', 'Teal/Black/Gold', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='AFC' AND Division='South';
+
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Tennessee Titans', 'Nashville, TN', 'Navy/Titanium/Red', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='AFC' AND Division='South';
+
+-- AFC West
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Kansas City Chiefs', 'Kansas City, MO', 'Red/Gold', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='AFC' AND Division='West';
+
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Las Vegas Raiders', 'Las Vegas, NV', 'Silver/Black', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='AFC' AND Division='West';
+
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Los Angeles Chargers', 'Los Angeles, CA', 'Blue/Gold', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='AFC' AND Division='West';
+
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Denver Broncos', 'Denver, CO', 'Orange/Navy', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='AFC' AND Division='West';
+
+-- NFC North
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Chicago Bears', 'Chicago, IL', 'Navy/Orange', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='NFC' AND Division='North';
+
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Detroit Lions', 'Detroit, MI', 'Blue/Silver', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='NFC' AND Division='North';
+
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Green Bay Packers', 'Green Bay, WI', 'Green/Gold', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='NFC' AND Division='North';
+
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Minnesota Vikings', 'Minneapolis, MN', 'Purple/Gold', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='NFC' AND Division='North';
+
+-- NFC East
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Dallas Cowboys', 'Arlington, TX', 'Navy/Silver/White', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='NFC' AND Division='East';
+
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'New York Giants', 'East Rutherford, NJ', 'Blue/Red/White', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='NFC' AND Division='East';
+
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Philadelphia Eagles', 'Philadelphia, PA', 'Midnight Green/Silver', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='NFC' AND Division='East';
+
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Washington Commanders', 'Landover, MD', 'Burgundy/Gold', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='NFC' AND Division='East';
+
+-- NFC South
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Atlanta Falcons', 'Atlanta, GA', 'Red/Black/Silver', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='NFC' AND Division='South';
+
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Carolina Panthers', 'Charlotte, NC', 'Blue/Black/Silver', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='NFC' AND Division='South';
+
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'New Orleans Saints', 'New Orleans, LA', 'Black/Gold', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='NFC' AND Division='South';
+
+INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
+SELECT 'Tampa Bay Buccaneers', 'Tampa, FL', 'Red/Pewter/White', ConferenceDivisionID
+FROM ConferenceDivision
+WHERE Conference='NFC' AND Division='South';
+
 -- NFC West
 INSERT INTO Team (TeamName, TeamCityState, TeamColors, ConferenceDivisionID)
 SELECT 'San Francisco 49ers', 'San Francisco, CA', 'Red/Gold', ConferenceDivisionID

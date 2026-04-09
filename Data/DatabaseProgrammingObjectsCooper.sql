@@ -1,6 +1,4 @@
-
 -- Procedure: Add a New Team
-
 CREATE OR ALTER PROCEDURE MIST353NFLCooper_AddTeam
 (
     @TName NVARCHAR(50),
@@ -41,8 +39,7 @@ BEGIN
 END
 GO
 
-
---Get Teams by Conference Only
+-- Procedure: Get Teams by Conference Only
 CREATE OR ALTER PROCEDURE GetTeamsByConference
 (
     @conference NVARCHAR(50)
@@ -59,6 +56,47 @@ BEGIN
         ON T.ConferenceDivisionID = CD.ConferenceDivisionID
     WHERE CD.Conference = @conference
     ORDER BY CD.Division, T.TeamName;
+END
+GO
+
+-- Procedure: Get Teams for a Specified Fan (by Fan ID, Email, or both)
+CREATE OR ALTER PROCEDURE procGetTeamsForSpecifiedFan
+(
+    @NFLFanID INT = NULL,
+    @Email    NVARCHAR(100) = NULL
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @NFLFanID IS NULL AND @Email IS NULL
+    BEGIN
+        RAISERROR('At least one of @NFLFanID or @Email must be provided.', 16, 1);
+        RETURN;
+    END
+
+    SELECT
+        AU.Firstname,
+        AU.Lastname,
+        AU.Email,
+        T.TeamName,
+        T.TeamColors,
+        CD.Conference,
+        CD.Division,
+        FT.PrimaryTeam
+    FROM NFLFAN NF
+    JOIN AppUser AU
+        ON NF.NFLFanID = AU.AppUserID
+    JOIN FanTeam FT
+        ON FT.NFLFanID = NF.NFLFanID
+    JOIN Team T
+        ON FT.TeamID = T.TeamID
+    JOIN ConferenceDivision CD
+        ON T.ConferenceDivisionID = CD.ConferenceDivisionID
+    WHERE
+        (@NFLFanID IS NULL OR NF.NFLFanID = @NFLFanID)
+        AND (@Email IS NULL OR AU.Email = @Email)
+    ORDER BY FT.PrimaryTeam DESC, T.TeamName;
 END
 GO
 
