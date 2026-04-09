@@ -6,6 +6,7 @@ GO
 -- ===================================
 -- Drop tables if they exist
 
+-- trying out
 IF OBJECT_ID('Team', 'U') IS NOT NULL DROP TABLE Team;
 IF OBJECT_ID('ConferenceDivision', 'U') IS NOT NULL DROP TABLE ConferenceDivision;
 GO
