@@ -2,7 +2,8 @@
 -- USE master;
 -- CREATE DATABASE MIST_RDB_Cooper;
 GO
---test1
+--test
+-- ===================================
 -- Drop tables if they exist
 
 IF OBJECT_ID('Team', 'U') IS NOT NULL DROP TABLE Team;
