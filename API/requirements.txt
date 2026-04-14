@@ -1,8 +1,4 @@
-pyodbc
-python-dotenv
 fastapi
 uvicorn
 gunicorn
 python-dotenv
-mymssql # dicuss why
-pymssql
