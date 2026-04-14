@@ -1,1 +1,1 @@
-gunicorn -w 4 -k uvicorn.workers.UvicornWorker nfl_playoffs_api:app
+gunicorn -w 4 -k uvicorn.workers.UvicornWorker --bind=0.0.0.0:$PORT nfl_playoffs_api:app
