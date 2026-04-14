@@ -1,17 +1,47 @@
+name: Build and deploy Python app to Azure Web App - mist356-api-cooper
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
     steps:
       - uses: actions/checkout@v4
 
-      # No need to set up Python or pip install here 
-      # The Dockerfile handles all of that in the cloud!
+      # We skip 'Set up Python' and 'pip install' entirely.
+      # This prevents the Exit Code 1.
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
           name: python-app
           path: .
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: python-app
+      
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_... }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_... }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_... }}
+
+      - name: 'Deploy to Azure Web App'
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'mist356-api-cooper'
