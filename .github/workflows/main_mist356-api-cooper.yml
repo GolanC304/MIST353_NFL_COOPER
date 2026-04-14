@@ -9,11 +9,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
     steps:
       - uses: actions/checkout@v4
-
-      # We skip 'Set up Python' and 'pip install' entirely.
-      # This prevents the Exit Code 1.
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -37,9 +37,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_... }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_... }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_... }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_0C605EE217B0424587A7D40768F82F5A }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_50CB7E6DF1D541499D00F5AEB9F8FCB1 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_BC7469A0FD2E4790B9BFC37D068D5C08 }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
