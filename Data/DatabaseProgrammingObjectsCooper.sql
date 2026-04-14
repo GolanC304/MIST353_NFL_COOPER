@@ -7,6 +7,7 @@ CREATE OR ALTER PROCEDURE MIST353NFLCooper_AddTeam
     @ConferenceDivID INT
 )
 AS
+-- test
 BEGIN
     SET NOCOUNT ON;
 
