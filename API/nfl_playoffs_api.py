@@ -4,6 +4,19 @@ from get_db_connection import get_db_connection
 
 app = FastAPI(title="NFL Playoffs API")
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI(title="NFL Playoffs API")
+
+# Add this block
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # In production, you can replace "*" with your Azure URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.get("/")
 def root():
