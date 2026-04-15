@@ -7,10 +7,15 @@ GO
 -- Drop tables if they exist
 
 -- trying out3
+
+
+IF OBJECT_ID('FanTeam', 'U') IS NOT NULL DROP TABLE FanTeam;
+IF OBJECT_ID('NFLFAN', 'U') IS NOT NULL DROP TABLE NFLFAN;
+IF OBJECT_ID('NFLAdmin', 'U') IS NOT NULL DROP TABLE NFLAdmin;
+IF OBJECT_ID('AppUser', 'U') IS NOT NULL DROP TABLE AppUser;
 IF OBJECT_ID('Team', 'U') IS NOT NULL DROP TABLE Team;
 IF OBJECT_ID('ConferenceDivision', 'U') IS NOT NULL DROP TABLE ConferenceDivision;
 GO
-
 -- Create tables
 CREATE TABLE ConferenceDivision (
     ConferenceDivisionID INT IDENTITY(1,1) PRIMARY KEY,
