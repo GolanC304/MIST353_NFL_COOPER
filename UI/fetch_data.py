@@ -5,8 +5,9 @@ import pandas as pd
 BASE_URL = "http://127.0.0.1:8000"
  
  
-def fetch_data(endpoint: str, params: dict = None) -> pd.DataFrame | None:
-    
+from typing import Optional
+
+def fetch_data(endpoint: str, params: dict = None) -> Optional[pd.DataFrame]:    
     try:
         url = f"{BASE_URL}/{endpoint.lstrip('/')}"
         response = requests.get(url, params=params, timeout=10)
