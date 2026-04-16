@@ -8,4 +8,4 @@ gunicorn -w 4 -k uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000 API.nfl_playo
 
 # Start the Streamlit frontend on the port Azure assigns
 # Note: Streamlit usually uses 8501 locally, but Azure needs $PORT
-streamlit run UI/nfl_ui.py --server.port $PORT --server.address 0.0.0.0
+streamlit run UI/nfl_playoffs_ui.py --server.port $PORT --server.address 0.0.0.0
