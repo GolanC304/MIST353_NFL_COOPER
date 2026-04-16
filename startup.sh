@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Move to the app directory
-cd /home/site/wwwroot
+# 1. Clear ports to avoid "Address already in use" errors
+fuser -k 8000/tcp || true
+fuser -k 8080/tcp || true
 
-# Install missing modules if they aren't in the virtual env
-pip install gunicorn uvicorn streamlit pyodbc fastapi
+# 2. Start FastAPI (the Back-end) on Port 8000
+# We use --daemon to keep it running in the background
+gunicorn -w 2 -k uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000 API.nfl_playoffs_api:app --daemon
 
-# Start the API in the background
-gunicorn -w 2 -k uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000 API.nfl_playoffs_api:app &
-
-# Start Streamlit
-streamlit run UI/nfl_playoffs_ui.py --server.port 8080 --server.address 0.0.0.0
+# 3. Start Streamlit (the Front-end) on Port 8080
+# Streamlit remains in the foreground to keep the container alive
+python -m streamlit run UI/nfl_playoffs_ui.py --server.port 8080 --server.address 0.0.0.0
