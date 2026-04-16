@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# Ensure the root directory is in the Python Path
-export PYTHONPATH=$PYTHONPATH:$(pwd)
+# Use the absolute path for the site root
+export PYTHONPATH=$PYTHONPATH:/home/site/wwwroot
 
 # Start the FastAPI backend on port 8000
-gunicorn -w 4 -k uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000 API.nfl_playoffs_api:app &
+# -D runs gunicorn in 'daemon' mode (true background)
+gunicorn -w 2 -k uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000 API.nfl_playoffs_api:app --daemon
 
-# Start the Streamlit frontend on the port Azure assigns
-# Note: Streamlit usually uses 8501 locally, but Azure needs $PORT
-streamlit run UI/nfl_playoffs_ui.py --server.port $PORT --server.address 0.0.0.0
+# Start the Streamlit frontend
+# If $PORT is empty, it will default to 8080
+streamlit run UI/nfl_playoffs_ui.py --server.port ${PORT:-8080} --server.address 0.0.0.0
