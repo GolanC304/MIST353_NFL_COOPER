@@ -1,19 +1,13 @@
 #!/bin/bash
 
-# Move to the directory where this script lives
-cd "$(dirname "$0")"
+# Move to the app directory
+cd /home/site/wwwroot
 
-# Try to find the virtual env, if not found, install packages directly
-if [ -d "antenv" ]; then
-    source antenv/bin/activate
-else
-    python3 -m pip install -r requirements.txt
-fi
+# Install missing modules if they aren't in the virtual env
+pip install gunicorn uvicorn streamlit pyodbc fastapi
 
-export PYTHONPATH=$PYTHONPATH:$(pwd)
+# Start the API in the background
+gunicorn -w 2 -k uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000 API.nfl_playoffs_api:app &
 
-# Start API (Port 8000)
-python3 -m gunicorn -w 2 -k uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000 API.nfl_playoffs_api:app --daemon
-
-# Start UI (Port 8080)
-python3 -m streamlit run UI/nfl_playoffs_ui.py --server.port 8080 --server.address 0.0.0.0
+# Start Streamlit
+streamlit run UI/nfl_playoffs_ui.py --server.port 8080 --server.address 0.0.0.0
