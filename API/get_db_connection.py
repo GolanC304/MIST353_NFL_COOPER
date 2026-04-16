@@ -1,4 +1,3 @@
-# get_db_connection.py
 import os
 import pyodbc
 from dotenv import load_dotenv
@@ -18,7 +17,9 @@ def get_db_connection():
         f"UID={username};"
         f"PWD={password};"
         "Encrypt=yes;"
-        "TrustServerCertificate=no;"
+        "TrustServerCertificate=yes;"
+        "Connection Timeout=60;" # Increased to 60 for Canada Central latency
     )
 
-    return pyodbc.connect(conn_str)
+    # Adding a timeout parameter directly to the connect function as a backup
+    return pyodbc.connect(conn_str, timeout=60)
