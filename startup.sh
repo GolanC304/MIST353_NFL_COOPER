@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # 1. Clear ports to avoid "Address already in use" errors
-fuser -k 8000/tcp || true
-fuser -k 8080/tcp || true
+# Squelch errors and kill silently
+lsof -ti:8000,8080 | xargs kill -9 2>/dev/null || true
 
 # 2. Start FastAPI (the Back-end) on Port 8000
 # We use --daemon to keep it running in the background
