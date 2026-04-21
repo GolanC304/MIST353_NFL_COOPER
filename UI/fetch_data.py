@@ -2,7 +2,7 @@
 import requests
 import pandas as pd
  
-BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = "https://mist353-api-cooper-hkgrehdvebhqaye2.mexicocentral-01.azurewebsites.net"
  
  
 from typing import Optional
