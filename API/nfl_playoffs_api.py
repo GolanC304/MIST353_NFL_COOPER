@@ -1,7 +1,6 @@
 # nfl_playoffs_api.py
 from fastapi import FastAPI, HTTPException
-from get_db_connection import get_db_connection
-
+from API.get_db_connection import get_db_connection
 app = FastAPI(title="NFL Playoffs API")
 
 from fastapi.middleware.cors import CORSMiddleware
