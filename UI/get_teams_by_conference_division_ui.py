@@ -11,7 +11,7 @@ def get_teams_by_conference_division_ui():
 
     if st.button("Get Teams"):
         response = requests.get(
-            f"{BASE_URL}/teams",
+            f"{BASE_URL}/teams/",
             params={"conference": conference, "division": division}
         )
 
