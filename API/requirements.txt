@@ -5,3 +5,4 @@ python-dotenv
 pyodbc
 streamlit
 pandas
+pymssql

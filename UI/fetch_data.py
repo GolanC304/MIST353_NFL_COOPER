@@ -1,32 +1,23 @@
 # fetch_data.py
+import streamlit as st
 import requests
 import pandas as pd
- 
-BASE_URL = "https://mist353-api-cooper-hkgrehdvebhqaye2.mexicocentral-01.azurewebsites.net"
- 
- 
-from typing import Optional
 
-def fetch_data(endpoint: str, params: dict = None) -> Optional[pd.DataFrame]:    
-    try:
-        url = f"{BASE_URL}/{endpoint.lstrip('/')}"
-        response = requests.get(url, params=params, timeout=10)
-        response.raise_for_status()
-        data = response.json()
- 
-        if isinstance(data, list):
-            return pd.DataFrame(data)
-        elif isinstance(data, dict):
-            return pd.DataFrame([data])
+# The URL you defined
+BASE_URL = "https://mist353-api-cooper-hkgrehdvebhqaye2.mexicocentral-01.azurewebsites.net"
+
+# Added 'def' and fixed the variable name inside the f-string
+def fetch_data(endpoint: str, input_params: dict, method: str = "GET"):
+    if method == "GET":
+        # Changed FASTAPI_URL to BASE_URL to match your definition above
+        response = requests.get(f"{BASE_URL}/{endpoint}", params=input_params)
+
+        if response.status_code == 200:
+            payload = response.json()
+            # Good use of .get() to avoid KeyErrors
+            rows = payload.get("data", [])
+            df = pd.DataFrame(rows)
+            return df
         else:
+            st.error(f"Error fetching data: {response.status_code}")
             return None
- 
-    except requests.exceptions.HTTPError as e:
-        print(f"HTTP error for {endpoint}: {e.response.status_code} - {e.response.text}")
-        return None
-    except requests.exceptions.ConnectionError:
-        print(f"Could not connect to API at {BASE_URL}. Is the server running?")
-        return None
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        return None
