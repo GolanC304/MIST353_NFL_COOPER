@@ -70,6 +70,13 @@ VALUES
 ('Mike', 'Tomlin', 'mike.tomlin@example.com', '555-1111', 0x01, N'NFLAdmin'),
 ('Andy', 'Reid', 'andy.reid@example.com', '555-3333', 0x01, N'NFLAdmin');
 
+INSERT INTO AppUser (Firstname, Lastname, Email, PasswordHash, UserRole)
+VALUES ('Golan', 'Cooper', 'golan@cooper.com', 
+        CONVERT(VARBINARY(256), '0x01', 1), 'NFLAdmin');
+
+INSERT INTO NFLAdmin (NFLAdminID)
+SELECT AppUserID FROM AppUser WHERE Email = 'golan@cooper.com';
+
 GO
 
 insert into NFLFan (NFLFanID)

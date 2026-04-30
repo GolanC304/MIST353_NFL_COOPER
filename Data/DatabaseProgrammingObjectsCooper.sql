@@ -52,6 +52,7 @@ BEGIN
     PasswordHash = Convert(VARBINARY(200), @PasswordHash, 1);
 END
 
+-- execute procValidateUser 'tom.brady@example.com', '0x01';
 
 GO
 

@@ -1,165 +1,45 @@
-# nfl_playoffs_api.py
-from fastapi import FastAPI, HTTPException
-from API.get_db_connection import get_db_connection
-app = FastAPI(title="NFL Playoffs API")
+from fastapi import FastAPI
+from get_teams_by_conference_division import get_teams_by_conference_division
+from get_teams_in_same_conference_division_as_specified_team import get_teams_in_same_conference_division_as_specified_team
+from validate_user import validate_user
+from get_teams_for_specified_fan import get_teams_for_specified_fan
+from schedule_game import schedule_game
+import pymssql
 
-from fastapi.middleware.cors import CORSMiddleware
+app = FastAPI()
 
-app = FastAPI(title="NFL Playoffs API")
+@app.get("/get_teams_by_conference_division/")
+def get_teams_by_conference_division_api(conference: str = None, division: str = None):
+    return get_teams_by_conference_division(conference=conference, division=division)
 
-# Add this block
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"], # In production, you can replace "*" with your Azure URL
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-@app.get("/")
-def root():
-    return {"message": "Hello, World!"}
-
-
-@app.get("/teams/")
-def get_teams(conference: str = None, division: str = None):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        "EXEC procGetTeamsByConferenceDivision @ConferenceName=?, @DivisionName=?",
-        conference, division
-    )
-    rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return [
-        {
-            "TeamName": row.TeamName,
-            "TeamColors": row.TeamColors,
-            "Conference": row.Conference,
-            "Division": row.Division
-        }
-        for row in rows
-    ]
-
-
-@app.get("/teams/same_division/")
-def get_teams_same_division(team_name: str):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        "EXEC procGetTeamsInSameConferenceDivisionAsSpecifiedTeam @TeamName=?",
-        team_name
-    )
-    rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return [
-        {
-            "TeamName": row.TeamName,
-            "Conference": row.Conference,
-            "Division": row.Division
-        }
-        for row in rows
-    ]
-
-
-@app.get("/teams/by_conference/")
-def get_teams_by_conference(conference: str):
-    """
-    Returns all teams in the specified conference along with their divisions.
-    """
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        "EXEC GetTeamsByConference @conference=?",
-        conference
-    )
-    rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return [
-        {
-            "TeamName": row.TeamName,
-            "Division": row.Division
-        }
-        for row in rows
-    ]
-
-
-@app.get("/fans/teams/")
-def get_teams_for_fan(fan_id: int = None, email: str = None):
-    """
-    Returns all teams associated with a fan.
-    Look up by fan_id, email, or both.
-    """
-    if fan_id is None and email is None:
-        raise HTTPException(
-            status_code=400,
-            detail="Provide at least one of: fan_id or email"
-        )
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        "EXEC procGetTeamsForSpecifiedFan @NFLFanID=?, @Email=?",
-        fan_id, email
-    )
-    rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
-
-    if not rows:
-        raise HTTPException(status_code=404, detail="No fan or teams found for the given input.")
-
-    return [
-        {
-            "Firstname": row.Firstname,
-            "Lastname": row.Lastname,
-            "Email": row.Email,
-            "TeamName": row.TeamName,
-            "TeamColors": row.TeamColors,
-            "Conference": row.Conference,
-            "Division": row.Division,
-            "PrimaryTeam": bool(row.PrimaryTeam)
-        }
-        for row in rows
-    ]
-
+@app.get("/get_teams_in_same_conference_division_as_specified_team/")
+def get_teams_in_same_conference_division_as_specified_team_api(team_name: str):
+    return get_teams_in_same_conference_division_as_specified_team(team_name=team_name)
 
 @app.get("/validate_user/")
-def validate_user(email: str, password: str):
-    """
-    Validates a user by email and password hash check.
-    Returns basic user info if valid.
-    """
-    import hashlib
+def validate_user_api(email: str, password_hash: str):
+    return validate_user(email=email, password_hash=password_hash)
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT AppUserID, Firstname, Lastname, Email, PasswordHash, UserRole FROM AppUser WHERE Email = ?",
-        email
+@app.get("/get_teams_for_specified_fan/")
+def get_teams_for_specified_fan_api(fan_id: int):
+    return get_teams_for_specified_fan(fan_id=fan_id)
+
+@app.post("/schedule_game/")
+def schedule_game_api(
+    home_team_id: int,
+    away_team_id: int,
+    game_round: str,
+    game_date: str,
+    game_start_time: str,
+    stadium_id: int,
+    nfl_admin_id: int
+):
+    return schedule_game(
+        home_team_id=home_team_id,
+        away_team_id=away_team_id,
+        game_round=game_round,
+        game_date=game_date,
+        game_start_time=game_start_time,
+        stadium_id=stadium_id,
+        nfl_admin_id=nfl_admin_id
     )
-    row = cursor.fetchone()
-    cursor.close()
-    conn.close()
-
-    if row is None:
-        raise HTTPException(status_code=404, detail="User not found.")
-
-    # Hash the incoming password the same way it was stored
-    password_hash = hashlib.sha256(password.encode()).digest()
-
-    if bytes(row.PasswordHash) != password_hash:
-        raise HTTPException(status_code=401, detail="Invalid password.")
-
-    return {
-        "AppUserID": row.AppUserID,
-        "Firstname": row.Firstname,
-        "Lastname": row.Lastname,
-        "Email": row.Email,
-        "UserRole": row.UserRole
-    }
-## test123
