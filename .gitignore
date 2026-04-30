@@ -4,4 +4,5 @@ antenv/
 __pycache__/
 *.pyc
 *.pyo
-.DS_Storedeploy.zip
+.DS_Store
+deploy.zip
