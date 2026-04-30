@@ -21,3 +21,4 @@ def get_teams_in_same_conference_division_as_specified_team_ui():
                 st.dataframe(df, use_container_width=True, hide_index=True)
             else:
                 st.info(f"No teams found in the same conference and division as {team_name}. Please check the team name and try again.")
+

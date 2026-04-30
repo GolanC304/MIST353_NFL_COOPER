@@ -1,23 +1,30 @@
-# fetch_data.py
 import streamlit as st
 import requests
 import pandas as pd
 
-# The URL you defined
-BASE_URL = "https://mist353-api-cooper-hkgrehdvebhqaye2.mexicocentral-01.azurewebsites.net"
+FASTAPI_URL = "http://localhost:8000"  # Adjust if your API is hosted elsewhere
 
-# Added 'def' and fixed the variable name inside the f-string
 def fetch_data(endpoint: str, input_params: dict, method: str = "GET"):
     if method == "GET":
-        # Changed FASTAPI_URL to BASE_URL to match your definition above
-        response = requests.get(f"{BASE_URL}/{endpoint}", params=input_params)
+        response = requests.get(f"{FASTAPI_URL}/{endpoint}", params=input_params)
+    # elif method == "POST":
+    #     response = requests.post(f"{FASTAPI_URL}/{endpoint}", json=input_params)
 
         if response.status_code == 200:
             payload = response.json()
-            # Good use of .get() to avoid KeyErrors
             rows = payload.get("data", [])
             df = pd.DataFrame(rows)
             return df
         else:
             st.error(f"Error fetching data: {response.status_code}")
             return None
+
+def post_data(endpoint: str, input_params: dict, method: str = "POST")-> dict:
+    if method == "POST":
+        response = requests.post(f"{FASTAPI_URL}/{endpoint}", params=input_params)
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            st.error(f"Error posting data: {response.status_code}")
+            return {"status_message": f"Error occurred: {response.status_code}"}

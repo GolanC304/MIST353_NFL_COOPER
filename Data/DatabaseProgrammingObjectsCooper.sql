@@ -1,6 +1,9 @@
 
 
-
+/*
+1. User searches for teams using Conference name (optional) and / or Division name (optional)
+To show: TeamName, ConferenceName, DivisionName
+*/
 
 go
 
@@ -18,6 +21,11 @@ begin
     where Conference = IsNull(@ConferenceName, Conference)
         and Division = IsNull(@DivisionName, Division)
 end
+/*
+execute procGetTeamsByConferenceDivision
+    @ConferenceName = 'AFC',
+    @DivisionName = 'North';
+*/
 
 
 go
@@ -36,6 +44,7 @@ BEGIN
     where MyTeam.TeamName = @TeamName and
         OtherTeam.TeamName != @TeamName;
 END
+-- execute procGetTeamsInSameConferenceDivisionAsSpecifiedTeam @TeamName = 'Baltimore Ravens';
 
 GO
 
@@ -51,8 +60,9 @@ BEGIN
     where Email = @Email and 
     PasswordHash = Convert(VARBINARY(200), @PasswordHash, 1);
 END
-
--- execute procValidateUser 'tom.brady@example.com', '0x01';
+-- execute procValidateUser @Email = 'tom.brady@example.com', @PasswordHash = '0x01';
+-- execute procValidateUser @Email = 'bill.belichick@example.com', @PasswordHash = '0x01';
+-- select * from AppUser;
 
 GO
 
@@ -69,7 +79,8 @@ BEGIN
         on T.ConferenceDivisionID = CD.ConferenceDivisionID
     where FT.NFLFanID = @NFLFanID;
 end;
-
+-- execute procGetTeamsForSpecifiedFan @NFLFanID = 1;
+-- execute procGetTeamsForSpecifiedFan @NFLFanID = 2;
 
 go
 
@@ -81,10 +92,11 @@ create or alter procedure procScheduleGame
     @GameDate DATE,
     @GameStartTime TIME,
     @StadiumID INT,
-    @NFLAdminID INT 
+    @NFLAdminID INT -- the logged-in admin who is scheduling the game
 )
 AS
 BEGIN
+    -- Store the NFLAdminID in context so that the trigger can access it when inserting into AdminChangesTracker
     declare @context VARBINARY(128) = cast(@NFLAdminID as VARBINARY(128)); -- int is only 4 bytes, but context_info can store up to 128 bytes, so we can store additional info in the future if needed
     SET context_info @context;
 
@@ -118,7 +130,7 @@ execute procScheduleGame
     @StadiumID = 17, 
     @NFLAdminID = 6;
 
-
+delete from Game where GameID = 12;
 select * from Game order by GameID desc;
 select * from AdminChangesTracker order by AdminChangesTrackerID desc;
 
@@ -172,3 +184,107 @@ BEGIN
     insert into AdminChangesTracker (NFLAdminID, GameID, ChangeType, ChangeDescription)
     values (@NFLAdminID, @GameID, @ChangeType, @ChangeDescription);
 END
+
+go
+
+create or alter procedure procGetAllChangesMadeBySpecifiedAdmin
+(
+    @NFLAdminID INT
+)
+as
+begin
+    select ACT.ChangeDateTime, ACT.ChangeType, ACT.ChangeDescription, 
+    G.GameRound, G.GameDate, G.GameStartTime,
+    HT.TeamName as HomeTeam, AT.TeamName as AwayTeam, S.StadiumName
+    from AdminChangesTracker ACT inner join Game G
+        on ACT.GameID = G.GameID
+        inner join Team HT
+        on G.HomeTeamID = HT.TeamID
+        inner join Team AT
+        on G.AwayTeamID = AT.TeamID
+        inner join Stadium S
+        on G.StadiumID = S.StadiumID
+    where ACT.NFLAdminID = @NFLAdminID
+    order by ACT.ChangeDateTime desc;
+end
+
+-- execute procGetAllChangesMadeBySpecifiedAdmin @NFLAdminID = 5; -- Bill Belichick
+
+GO
+
+create or alter procedure procEnterGameScore
+(
+    @GameID INT,
+    @HomeTeamScore INT,
+    @AwayTeamScore INT,
+    @NFLAdminID INT
+)
+AS
+BEGIN
+
+-- Store the AdminID in context so the trigger can read it
+    DECLARE @context VARBINARY(128) = CAST(CAST(@NFLAdminID AS BINARY(4)) AS VARBINARY(128));
+    SET CONTEXT_INFO @context;
+
+    update Game
+    set HomeTeamScore = @HomeTeamScore,
+        AwayTeamScore = @AwayTeamScore,
+        WinningTeamID = CASE 
+            WHEN @HomeTeamScore > @AwayTeamScore THEN HomeTeamID
+            WHEN @AwayTeamScore > @HomeTeamScore THEN AwayTeamID
+        END
+    where GameID = @GameID;
+END
+
+GO
+
+create or alter trigger trgTrackChangesOnEnteringGameScore
+ON Game
+AFTER UPDATE
+AS
+BEGIN
+    -- Only proceed if score columns were touched
+    IF UPDATE(HomeTeamScore) OR UPDATE(AwayTeamScore)
+    BEGIN
+        DECLARE @GameID         INT,  
+                @NFLAdminID     INT,
+                @HomeTeamScore  INT, @AwayTeamScore  INT, @WinningTeamID INT,
+                @HomeTeamName NVARCHAR(50), @AwayTeamName NVARCHAR(50), @WinningTeamName NVARCHAR(50),
+                @ChangeDescription  NVARCHAR(500),
+                @ChangeType NVARCHAR(50),
+                @AdminFullName NVARCHAR(100);
+
+        SELECT  @GameID        = GameID,
+                @HomeTeamScore = HomeTeamScore,
+                @AwayTeamScore = AwayTeamScore,
+                @WinningTeamID = WinningTeamID                
+        FROM inserted;
+
+        select @HomeTeamName = T.TeamName from Team T join Game G on T.TeamID = G.HomeTeamID where G.GameID = @GameID;
+        select @AwayTeamName = T.TeamName from Team T join Game G on T.TeamID = G.AwayTeamID where G.GameID = @GameID;
+        select @WinningTeamName = T.TeamName from Team T where T.TeamID = @WinningTeamID;
+
+        -- Read the AdminID that was stored by the procedure
+        SET @NFLAdminID = CONVERT(INT, CONVERT(BINARY(4), CONTEXT_INFO()));
+        select @AdminFullName = Firstname + ' ' + Lastname from AppUser where AppUserID = @NFLAdminID;
+
+
+        set @ChangeType = 'Update';
+        SET @ChangeDescription =
+            'Scores updated by ' + @AdminFullName + ' for GameID=' + CAST(@GameID AS NVARCHAR(10))
+            + ': Home=' + @HomeTeamName + ' (' + CAST(@HomeTeamScore AS NVARCHAR(10)) + ')'
+            + ', Away=' + @AwayTeamName + ' (' + CAST(@AwayTeamScore AS NVARCHAR(10)) + ')'
+            + ', WinningTeam=' + @WinningTeamName;
+            
+        insert into AdminChangesTracker (NFLAdminID, GameID, ChangeDateTime, ChangeType, ChangeDescription)
+        values (@NFLAdminID, @GameID, GETDATE(), @ChangeType, @ChangeDescription);
+    END
+END
+
+GO
+
+/*
+select * from TeamStadium;
+select * from Game order by GameID desc;
+select * from AdminChangesTracker order by AdminChangesTrackerID desc;
+*/

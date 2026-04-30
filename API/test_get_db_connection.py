@@ -1,27 +1,11 @@
-##from get_db_connection import get_db_connection
-
-##def test_get_db_connection():
-  ##  conn = get_db_connection()
-    ##cursor = conn.cursor()
-    ##cursor.execute("SELECT 1")
-    ##result = cursor.fetchone()
-    ##conn.close()
-    ##print("✅ Connection successful, result:", result[0])
-
-##if __name__ == "__main__":
-  ##  test_get_db_connection()
-
 from get_db_connection import get_db_connection
 
 import os
-
-import pyodbc
-
+#import pyodbc
+import pymssql
 from dotenv import load_dotenv
 
 load_dotenv()
-
-
 
 def test_get_db_connection():
 
@@ -40,12 +24,11 @@ def test_get_db_connection():
   # Test 2: Connection returns a pyodbc.Connection object
 
   conn = get_db_connection()
-
-  assert isinstance(conn, pyodbc.Connection), "Expected a pyodbc.Connection"
+  
+  #assert isinstance(conn, pyodbc.Connection), "Expected a pyodbc.Connection" # This is the original assertion, but since we switched to pymssql, we should check for that instead
+  assert isinstance(conn, pymssql.Connection), "Expected a pymssql.Connection"
 
   print("✅ Connection object returned")
-
-
 
   # Test 3: Connection is usable (run a simple query)
 
@@ -58,8 +41,6 @@ def test_get_db_connection():
   assert result[0] == 1, "Expected query result of 1"
 
   print("✅ Connection is live and queryable")
-
-
 
   conn.close()
 

@@ -1,21 +1,28 @@
 import streamlit as st
-import requests
-
-BASE_URL = "https://mist353-api-cooper-hkgrehdvebhqaye2.mexicocentral-01.azurewebsites.net"
+from fetch_data import fetch_data
 
 def get_teams_by_conference_division_ui():
+    
     st.header("Get Teams by Conference and Division")
 
-    conference = st.selectbox("Conference", ["AFC", "NFC"])
-    division = st.selectbox("Division", ["North", "South", "East", "West"])
+    #Check using dropdowns for optionality of conference and division inputs
+    #conference = st.selectbox("Select Conference", ["","AFC", "NFC"])
+    #division = st.selectbox("Select Division", ["","East", "North", "South", "West"])
 
-    if st.button("Get Teams"):
-        response = requests.get(
-            f"{BASE_URL}/teams/",
-            params={"conference": conference, "division": division}
-        )
+    conference = st.text_input("Enter Conference (AFC or NFC)")
+    division = st.text_input("Enter Division (East, North, South, West)")
 
-        if response.status_code == 200:
-            st.json(response.json())
+    if st.button("Fetch Teams"):
+        input_params = {}
+        if conference.strip():
+            input_params["conference"] = conference
+        if division.strip():
+            input_params["division"] = division
+        #define fetch_data function and call it with input_params
+        df = fetch_data("get_teams_by_conference_division/", input_params)
+
+        if df is not None and not df.empty:
+            st.subheader(f"Teams in conference {conference}, division {division}:")
+            st.dataframe(df, use_container_width=True, hide_index=True)
         else:
-            st.error("Error fetching data")
+            st.info(f"No teams found in conference {conference}, division {division}. Please check the inputs and try again.")
