@@ -5,16 +5,15 @@ import pymssql
 def get_all_teams():
     conn = get_db_connection()
     cursor = conn.cursor(as_dict=True)
-    cursor.execute("SELECT TeamID, TeamName FROM Team ORDER BY TeamName")
+    cursor.execute("SELECT TeamID, TeamName, TeamCityState FROM Team ORDER BY TeamName")
     rows = cursor.fetchall()
     conn.close()
-
     results = [
         {
             "TeamID": row["TeamID"],
-            "TeamName": row["TeamName"]
+            "TeamName": row["TeamName"],
+            "TeamCityState": row["TeamCityState"]
         }
         for row in rows
     ]
-
     return {"data": results}
