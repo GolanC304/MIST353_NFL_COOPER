@@ -60,4 +60,4 @@ jobs:
         with:
           app-name: 'mist353-api-cooper'
           slot-name: 'Production'
-          startup-command: 'cd /home/site/wwwroot/API && python -m uvicorn nfl_playoffs_api:app --host 0.0.0.0 --port 8000'
+          startup-command: 'cd $APP_PATH/API && python -m uvicorn nfl_playoffs_api:app --host 0.0.0.0 --port 8000'
