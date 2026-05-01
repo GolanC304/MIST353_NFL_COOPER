@@ -1,9 +1,12 @@
 from fastapi import FastAPI
-from get_teams_by_conference_division import get_teams_by_conference_division
-from get_teams_in_same_conference_division_as_specified_team import get_teams_in_same_conference_division_as_specified_team
-from validate_user import validate_user
-from get_teams_for_specified_fan import get_teams_for_specified_fan
-from schedule_game import schedule_game
+from datetime import date, time
+
+from API.get_teams_by_conference_division import get_teams_by_conference_division
+from API.get_teams_in_same_conference_division_as_specified_team import get_teams_in_same_conference_division_as_specified_team
+from API.validate_user import validate_user
+from API.get_teams_for_specified_fan import get_teams_for_specified_fan
+from API.schedule_game import schedule_game
+
 
 app = FastAPI()
 

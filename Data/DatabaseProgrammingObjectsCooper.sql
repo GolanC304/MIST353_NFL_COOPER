@@ -1,68 +1,64 @@
-
-
-/*
-1. User searches for teams using Conference name (optional) and / or Division name (optional)
-To show: TeamName, ConferenceName, DivisionName
-*/
-
-go
-
-
-create or alter procedure procGetTeamsByConferenceDivision
+GO
+CREATE OR ALTER PROCEDURE dbo.procGetTeamsByConferenceDivision
 (
-    @ConferenceName NVARCHAR(50) = null,
-    @DivisionName NVARCHAR(50) = null
+    @ConferenceName NVARCHAR(50) = NULL,
+    @DivisionName   NVARCHAR(50) = NULL
 )
 AS
-begin
-    select TeamName, TeamColors, Conference, Division
-    from Team T inner join ConferenceDivision C
-        on T.ConferenceDivisionID = C.ConferenceDivisionID
-    where Conference = IsNull(@ConferenceName, Conference)
-        and Division = IsNull(@DivisionName, Division)
-end
-/*
-execute procGetTeamsByConferenceDivision
-    @ConferenceName = 'AFC',
-    @DivisionName = 'North';
-*/
+BEGIN
+    SET NOCOUNT ON;
 
+    SELECT T.TeamName, T.TeamColors, C.Conference, C.Division
+    FROM dbo.Team T
+    INNER JOIN dbo.ConferenceDivision C
+        ON T.ConferenceDivisionID = C.ConferenceDivisionID
+    WHERE C.Conference = ISNULL(@ConferenceName, C.Conference)
+      AND C.Division   = ISNULL(@DivisionName, C.Division);
+END;
 
-go
+GO
+-- EXEC dbo.procGetTeamsByConferenceDivision
+--   @ConferenceName = 'AFC',
+--   @DivisionName = 'North';
 
-create OR alter procedure procGetTeamsInSameConferenceDivisionAsSpecifiedTeam
+CREATE OR ALTER PROCEDURE dbo.procGetTeamsInSameConferenceDivisionAsSpecifiedTeam
 (
     @TeamName NVARCHAR(50)
 )
 AS
 BEGIN
-    select OtherTeam.TeamName, CD.Conference, CD.Division
-    from Team MyTeam inner join Team OtherTeam
-        on MyTeam.ConferenceDivisionID = OtherTeam.ConferenceDivisionID
-        inner join ConferenceDivision CD
-        on MyTeam.ConferenceDivisionID = CD.ConferenceDivisionID
-    where MyTeam.TeamName = @TeamName and
-        OtherTeam.TeamName != @TeamName;
-END
--- execute procGetTeamsInSameConferenceDivisionAsSpecifiedTeam @TeamName = 'Baltimore Ravens';
+    SET NOCOUNT ON;
 
+    SELECT OtherTeam.TeamName, CD.Conference, CD.Division
+    FROM dbo.Team MyTeam
+    INNER JOIN dbo.Team OtherTeam
+        ON MyTeam.ConferenceDivisionID = OtherTeam.ConferenceDivisionID
+    INNER JOIN dbo.ConferenceDivision CD
+        ON MyTeam.ConferenceDivisionID = CD.ConferenceDivisionID
+    WHERE MyTeam.TeamName = @TeamName
+      AND OtherTeam.TeamName != @TeamName;
+END;
 GO
+-- EXEC dbo.procGetTeamsInSameConferenceDivisionAsSpecifiedTeam
+--     @TeamName = 'New England Patriots';
 
-create or alter procedure procValidateUser
+ GO
+
+ create or alter procedure procValidateUser
 (
-    @Email NVARCHAR(100),
-    @PasswordHash NVARCHAR(200)
+  @Email NVARCHAR(100),
+  @PasswordHash NVARCHAR(200)
 )
 AS
 BEGIN
-    select AppUserID, Firstname + ' ' + Lastname as Fullname, UserRole
-    from AppUser
-    where Email = @Email and 
-    PasswordHash = Convert(VARBINARY(200), @PasswordHash, 1);
+  select AppUserID, Firstname + ' ' + Lastname as Fullname, UserRole
+  from AppUser
+  where Email = @Email and 
+PasswordHash = Convert(VARBINARY(200), @PasswordHash, 1);
+
 END
--- execute procValidateUser @Email = 'tom.brady@example.com', @PasswordHash = '0x01';
--- execute procValidateUser @Email = 'bill.belichick@example.com', @PasswordHash = '0x01';
--- select * from AppUser;
+-- EXEC procValidateUser @Email = 'tom.brady@example.com', @PasswordHash = '0x01';
+-- EXEC procValidateUser @Email = 'bill.belichick@example.com', @PasswordHash = '0x01';
 
 GO
 
@@ -79,6 +75,7 @@ BEGIN
         on T.ConferenceDivisionID = CD.ConferenceDivisionID
     where FT.NFLFanID = @NFLFanID;
 end;
+
 -- execute procGetTeamsForSpecifiedFan @NFLFanID = 1;
 -- execute procGetTeamsForSpecifiedFan @NFLFanID = 2;
 
@@ -92,12 +89,11 @@ create or alter procedure procScheduleGame
     @GameDate DATE,
     @GameStartTime TIME,
     @StadiumID INT,
-    @NFLAdminID INT -- the logged-in admin who is scheduling the game
+    @NFLAdminID INT 
 )
 AS
 BEGIN
-    -- Store the NFLAdminID in context so that the trigger can access it when inserting into AdminChangesTracker
-    declare @context VARBINARY(128) = cast(@NFLAdminID as VARBINARY(128)); -- int is only 4 bytes, but context_info can store up to 128 bytes, so we can store additional info in the future if needed
+    declare @context VARBINARY(128) = cast(@NFLAdminID as VARBINARY(128)); 
     SET context_info @context;
 
     insert into Game (HomeTeamID, AwayTeamID, GameRound, GameDate, GameStartTime, StadiumID)
@@ -130,18 +126,15 @@ execute procScheduleGame
     @StadiumID = 17, 
     @NFLAdminID = 6;
 
-delete from Game where GameID = 12;
+
 select * from Game order by GameID desc;
 select * from AdminChangesTracker order by AdminChangesTrackerID desc;
 
 
 */
 
-go
 
--- trigger to track changes made by NFLAdmin to the Game table
--- 1. triggering event (insert, update, delete) on Game table
--- 2. action: insert a record into AdminChangesTracker with NFLAdminID, GameID, ChangeType, ChangeDescription
+GO
 
 create or alter trigger trgTrackChangesOnSchedulingGame
 on Game
@@ -163,10 +156,10 @@ BEGIN
     declare @StadiumName NVARCHAR(100);
     declare @AdminFullName NVARCHAR(100);
 
-    -- get the NFLAdminID from context
+
     set @NFLAdminID = convert(int, convert(binary(4),context_info()));
 
-    -- get the GameID of the newly inserted game
+
     select @GameID = GameID, @GameRound = GameRound, @GameDate = GameDate, @GameStartTime = GameStartTime, 
         @HomeTeamID = HomeTeamID, @AwayTeamID = AwayTeamID, @StadiumID = StadiumID
     from inserted;
@@ -185,34 +178,11 @@ BEGIN
     values (@NFLAdminID, @GameID, @ChangeType, @ChangeDescription);
 END
 
-go
 
-create or alter procedure procGetAllChangesMadeBySpecifiedAdmin
-(
-    @NFLAdminID INT
-)
-as
-begin
-    select ACT.ChangeDateTime, ACT.ChangeType, ACT.ChangeDescription, 
-    G.GameRound, G.GameDate, G.GameStartTime,
-    HT.TeamName as HomeTeam, AT.TeamName as AwayTeam, S.StadiumName
-    from AdminChangesTracker ACT inner join Game G
-        on ACT.GameID = G.GameID
-        inner join Team HT
-        on G.HomeTeamID = HT.TeamID
-        inner join Team AT
-        on G.AwayTeamID = AT.TeamID
-        inner join Stadium S
-        on G.StadiumID = S.StadiumID
-    where ACT.NFLAdminID = @NFLAdminID
-    order by ACT.ChangeDateTime desc;
-end
-
--- execute procGetAllChangesMadeBySpecifiedAdmin @NFLAdminID = 5; -- Bill Belichick
 
 GO
 
-create or alter procedure procEnterGameScore
+CREATE OR ALTER PROCEDURE procEnterScores
 (
     @GameID INT,
     @HomeTeamScore INT,
@@ -221,70 +191,258 @@ create or alter procedure procEnterGameScore
 )
 AS
 BEGIN
+    DECLARE @WinningTeamID INT;
 
--- Store the AdminID in context so the trigger can read it
-    DECLARE @context VARBINARY(128) = CAST(CAST(@NFLAdminID AS BINARY(4)) AS VARBINARY(128));
-    SET CONTEXT_INFO @context;
-
-    update Game
-    set HomeTeamScore = @HomeTeamScore,
-        AwayTeamScore = @AwayTeamScore,
-        WinningTeamID = CASE 
+    SELECT @WinningTeamID =
+        CASE
             WHEN @HomeTeamScore > @AwayTeamScore THEN HomeTeamID
             WHEN @AwayTeamScore > @HomeTeamScore THEN AwayTeamID
+            ELSE NULL
         END
-    where GameID = @GameID;
+    FROM Game
+    WHERE GameID = @GameID;
+
+    DECLARE @context VARBINARY(128) = CAST(@NFLAdminID AS VARBINARY(128));
+    SET CONTEXT_INFO @context;
+
+    UPDATE Game
+    SET HomeTeamScore = @HomeTeamScore,
+        AwayTeamScore = @AwayTeamScore,
+        WinningTeamID = @WinningTeamID
+    WHERE GameID = @GameID;
 END
+
 
 GO
 
-create or alter trigger trgTrackChangesOnEnteringGameScore
+CREATE OR ALTER TRIGGER trgTrackChangesOnEnteringScores
 ON Game
 AFTER UPDATE
 AS
 BEGIN
-    -- Only proceed if score columns were touched
-    IF UPDATE(HomeTeamScore) OR UPDATE(AwayTeamScore)
-    BEGIN
-        DECLARE @GameID         INT,  
-                @NFLAdminID     INT,
-                @HomeTeamScore  INT, @AwayTeamScore  INT, @WinningTeamID INT,
-                @HomeTeamName NVARCHAR(50), @AwayTeamName NVARCHAR(50), @WinningTeamName NVARCHAR(50),
-                @ChangeDescription  NVARCHAR(500),
-                @ChangeType NVARCHAR(50),
-                @AdminFullName NVARCHAR(100);
+    DECLARE @NFLAdminID INT;
+    DECLARE @GameID INT;
+    DECLARE @ChangeType NVARCHAR(50);
+    DECLARE @ChangeDescription NVARCHAR(500);
+    DECLARE @HomeTeamScore INT;
+    DECLARE @AwayTeamScore INT;
+    DECLARE @HomeTeamID INT;
+    DECLARE @AwayTeamID INT;
+    DECLARE @HomeTeamName NVARCHAR(50);
+    DECLARE @AwayTeamName NVARCHAR(50);
 
-        SELECT  @GameID        = GameID,
-                @HomeTeamScore = HomeTeamScore,
-                @AwayTeamScore = AwayTeamScore,
-                @WinningTeamID = WinningTeamID                
-        FROM inserted;
+    SET @NFLAdminID = CONVERT(INT, CONVERT(BINARY(4), CONTEXT_INFO()));
 
-        select @HomeTeamName = T.TeamName from Team T join Game G on T.TeamID = G.HomeTeamID where G.GameID = @GameID;
-        select @AwayTeamName = T.TeamName from Team T join Game G on T.TeamID = G.AwayTeamID where G.GameID = @GameID;
-        select @WinningTeamName = T.TeamName from Team T where T.TeamID = @WinningTeamID;
+    SELECT 
+        @GameID = GameID,
+        @HomeTeamScore = HomeTeamScore,
+        @AwayTeamScore = AwayTeamScore,
+        @HomeTeamID = HomeTeamID,
+        @AwayTeamID = AwayTeamID
+    FROM inserted;
 
-        -- Read the AdminID that was stored by the procedure
-        SET @NFLAdminID = CONVERT(INT, CONVERT(BINARY(4), CONTEXT_INFO()));
-        select @AdminFullName = Firstname + ' ' + Lastname from AppUser where AppUserID = @NFLAdminID;
+    SELECT @HomeTeamName = TeamName FROM Team WHERE TeamID = @HomeTeamID;
+    SELECT @AwayTeamName = TeamName FROM Team WHERE TeamID = @AwayTeamID;
 
+    SET @ChangeType = 'Update';
 
-        set @ChangeType = 'Update';
-        SET @ChangeDescription =
-            'Scores updated by ' + @AdminFullName + ' for GameID=' + CAST(@GameID AS NVARCHAR(10))
-            + ': Home=' + @HomeTeamName + ' (' + CAST(@HomeTeamScore AS NVARCHAR(10)) + ')'
-            + ', Away=' + @AwayTeamName + ' (' + CAST(@AwayTeamScore AS NVARCHAR(10)) + ')'
-            + ', WinningTeam=' + @WinningTeamName;
-            
-        insert into AdminChangesTracker (NFLAdminID, GameID, ChangeDateTime, ChangeType, ChangeDescription)
-        values (@NFLAdminID, @GameID, GETDATE(), @ChangeType, @ChangeDescription);
-    END
+    SET @ChangeDescription = 'Scores updated for GameID=' + CAST(@GameID AS NVARCHAR(50)) + ': '
+        + @HomeTeamName + ' scored ' + CAST(@HomeTeamScore AS NVARCHAR(50)) + ', '
+        + @AwayTeamName + ' scored ' + CAST(@AwayTeamScore AS NVARCHAR(50));
+
+    INSERT INTO AdminChangesTracker (NFLAdminID, GameID, ChangeType, ChangeDescription)
+    VALUES (@NFLAdminID, @GameID, @ChangeType, @ChangeDescription);
 END
+GO
 
 GO
 
-/*
-select * from TeamStadium;
-select * from Game order by GameID desc;
-select * from AdminChangesTracker order by AdminChangesTrackerID desc;
-*/
+CREATE OR ALTER PROCEDURE procGetAllChangesMadeBySpecifiedAdmin
+(
+    @NFLAdminID INT
+)
+AS
+BEGIN
+    SELECT 
+        ACT.ChangeDateTime,
+        ACT.ChangeType,
+        ACT.ChangeDescription,
+        G.GameRound,
+        G.GameDate,
+        G.GameStartTime,
+        HT.TeamName AS HomeTeam,
+        AT.TeamName AS AwayTeam,
+        S.StadiumName
+    FROM AdminChangesTracker ACT
+    INNER JOIN Game G
+        ON ACT.GameID = G.GameID
+    INNER JOIN Team HT
+        ON G.HomeTeamID = HT.TeamID
+    INNER JOIN Team AT
+        ON G.AwayTeamID = AT.TeamID
+    INNER JOIN Stadium S
+        ON G.StadiumID = S.StadiumID
+    WHERE ACT.NFLAdminID = @NFLAdminID
+    ORDER BY ACT.ChangeDateTime DESC;
+END
+GO
+
+-- EXEC procGetAllChangesMadeBySpecifiedAdmin @NFLAdminID = 5;
+
+
+
+
+
+create or alter procedure procGetAllTeams
+as
+begin
+    select TeamID, TeamName
+    from Team
+end
+
+go
+
+create or alter procedure procGetAllStadiums
+as
+begin
+    select StadiumID, StadiumName
+    from Stadium
+end
+
+go
+
+go
+alter table Team
+add TeamLogo VARBINARY(MAX);
+
+go
+
+create or alter procedure procGetTeamsWithLogosForSpecifiedFan
+(
+    @NFLFanID INT
+)
+AS
+BEGIN
+    select T.TeamName, CD.Conference, CD.Division, T.TeamColors, FT.PrimaryTeam, T.TeamLogo
+    from FanTeam FT inner join Team T
+        on FT.TeamID = T.TeamID
+        inner join ConferenceDivision CD
+        on T.ConferenceDivisionID = CD.ConferenceDivisionID
+    where FT.NFLFanID = @NFLFanID;
+end;
+-- execute procGetTeamsWithLogosForSpecifiedFan @NFLFanID = 2;
+
+go
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- -- go 
+-- select * from Team;
+-- declare @myTeamName nvarchar(50) = 'Pittsburgh Steelers';
+-- select OtherTeam.TeamName
+-- from Team MyTeam inner join Team OtherTeam
+-- on MyTeam.ConferenceDivisionID = OtherTeam.ConferenceDivisionID --this pairs up the teams based on their ConferenceDivisionID, it allows us to find all the teams that are in the same division as the specified team
+-- where MyTeam.TeamName = @myTeamName -- filters the results to only include rows where the TeamName column in the MyTeam table is equal to the value of the @myTeamName variable, it allows us to find the ConferenceDivisionID for the specified team
+-- and OtherTeam.TeamName != @myTeamName; -- this is a command to filter the results to only include rows where the TeamName column in the OtherTeam table is equal to the value of the @myTeamName variable, it allows us to find the ConferenceDivisionID for the specified team and then find all other teams that have the same ConferenceDivisionID (i.e., all teams in the same division as the specified team)
+
+
+--Find all teams in my team’s division (user optionally provides their team name)
+-- Add ConferenceName and DivisionName
+
+-- go 
+-- select * from Team;
+-- declare @myTeamName nvarchar(50) = 'Miami Dolphins';
+-- select OtherTeam.TeamName, ConferenceDivision.Conference, ConferenceDivision.Division
+-- from Team MyTeam inner join Team OtherTeam
+-- on MyTeam.ConferenceDivisionID = OtherTeam.ConferenceDivisionID 
+-- inner join ConferenceDivision -- this joins the ConferenceDivision table to the results of the previous join, it allows us to get the conference and division information for the teams we are selecting
+-- on MyTeam.ConferenceDivisionID = ConferenceDivision.ConferenceDivisionID -- this joins the ConferenceDivision table so we can display the Conference and Division names 
+-- where MyTeam.TeamName = @myTeamName 
+-- and OtherTeam.TeamName != @myTeamName; 
+
+-- Added: these added the Conference and Division names to the results of the query
+-- select: ConferenceDivision.Conference, ConferenceDivision.Division
+-- inner join ConferenceDivision 
+-- on MyTeam.ConferenceDivisionID = ConferenceDivision.ConferenceDivisionID 
+ 
+
+
+
+
+-- -- Query 1
+-- -- Display all conferences and divisions
+-- SELECT ConferenceDivisionID, Conference, Division -- this is a command to select the ConferenceDivisionID, Conference, and Division columns from the ConferenceDivision table, it allows us to see all the conferences and divisions we have in our database
+-- FROM ConferenceDivision -- this is the name of the table we are selecting from
+-- ORDER BY Conference, Division; -- this is a command to order the results by Conference and Division, it allows us to see the conferences and divisions in a logical order (AFC North, AFC South, etc.)
+
+-- -- Query 2
+-- -- Display all teams
+-- SELECT TeamID, TeamName, TeamCityState, TeamColors, ConferenceDivisionID -- this is a command to select the TeamID, TeamName, TeamCityState, TeamColors, and ConferenceDivisionID columns from the Team table, it allows us to see all the teams we have in our database
+-- FROM Team -- this is the name of the table we are selecting from
+-- ORDER BY ConferenceDivisionID, TeamName; -- this is a command to order the results by ConferenceDivisionID and TeamName, it allows us to see the teams in a logical order (all the teams in AFC North together, all the teams in AFC South together, etc.)
+
+-- -- Query 3 
+-- -- Join Team with ConferenceDivision
+-- SELECT Team.TeamName, Team.TeamCityState, ConferenceDivision.Conference, ConferenceDivision.Division, Team.TeamColors -- this is a command to select the TeamName, TeamCityState, Conference, Division, and TeamColors columns from the Team and ConferenceDivision tables, it allows us to see all the teams along with their conference and division information
+-- FROM Team -- this is the name of the first table we are selecting from (the Team table)
+-- JOIN ConferenceDivision -- this is a command to join the Team table with the ConferenceDivision table, it allows us to combine the data from both tables based on a common column (ConferenceDivisionID)
+--     ON Team.ConferenceDivisionID = ConferenceDivision.ConferenceDivisionID -- this is a command to specify the condition for the join, it ensures that we are joining the rows from the Team table with the corresponding rows from the ConferenceDivision table based on the ConferenceDivisionID column
+-- ORDER BY ConferenceDivision.Conference, ConferenceDivision.Division, Team.TeamName; -- this is a command to order the results by Conference, Division, and TeamName, it allows us to see the teams in a logical order (all the teams in AFC North together, all the teams in AFC South together, etc.)
+
+-- -- Extra Query Practice
+-- -- Display only AFC teams
+-- SELECT Team.TeamName, Team.TeamCityState, ConferenceDivision.Conference, ConferenceDivision.Division -- this is a command to select the TeamName, TeamCityState, Conference, and Division columns from the Team and ConferenceDivision tables, it allows us to see all the teams along with their conference and division information
+-- FROM Team -- this is the name of the first table we are selecting from (the Team table)
+-- JOIN ConferenceDivision -- this is a command to join the Team table with the ConferenceDivision table, it allows us to combine the data from both tables based on a common column (ConferenceDivisionID)
+--     ON Team.ConferenceDivisionID = ConferenceDivision.ConferenceDivisionID -- this is a command to specify the condition for the join, it ensures that we are joining the rows from the Team table with the corresponding rows from the ConferenceDivision table based on the ConferenceDivisionID column
+-- WHERE ConferenceDivision.Conference = 'AFC' -- this is a command to filter the results to only include rows where the Conference column in the ConferenceDivision table is equal to 'AFC', it allows us to see only the teams that are in the AFC conference
+-- ORDER BY ConferenceDivision.Conference, ConferenceDivision.Division, Team.TeamName; -- this is a command to order the results by Conference, Division, and TeamName, it allows us to see
+
+-- -- Display only AFC North teams
+-- SELECT Team.TeamName, Team.TeamCityState, ConferenceDivision.Conference, ConferenceDivision.Division -- this is a command to select the TeamName, TeamCityState, Conference, and Division columns from the Team and ConferenceDivision tables, it allows us to see all the teams along with their conference and division information
+-- FROM Team -- this is the name of the first table we are selecting from (the Team table)
+-- JOIN ConferenceDivision -- this is a command to join the Team table with the ConferenceDivision table, it allows us to combine the data from both tables based on a common column (ConferenceDivisionID)
+--     ON Team.ConferenceDivisionID = ConferenceDivision.ConferenceDivisionID -- this is a command to specify the condition for the join, it ensures that we are joining the rows from the Team table with the corresponding rows from the ConferenceDivision table based on the ConferenceDivisionID column
+-- WHERE ConferenceDivision.Conference = 'AFC' AND ConferenceDivision.Division = 'North' -- this is a command to filter the results to only include rows where the Conference column in the ConferenceDivision table is equal to 'AFC' and the Division column in the ConferenceDivision table is equal to 'North', it allows us to see only the teams that are in the AFC North division
+-- ORDER BY ConferenceDivision.Conference, ConferenceDivision.Division, Team.TeamName; -- this is a command to order the results by Conference, Division, and TeamName, it allows us to see the teams in a logical order (all the teams in AFC North together, all the teams in AFC South together, etc.)
+
+-- In Class examples:
+-- 1. User searchers for teams using Conference name (optional) and / or Divion name (optional)
+-- To show: teamname, conferencename, divisionname
+
+-- SELECT COUNT(*) AS ConferenceDivisionCount FROM dbo.ConferenceDivision;
+-- SELECT COUNT(*) AS TeamCount FROM dbo.Team;
+-- go
+-- create or alter procedure procGetTeamsByConferenceDivision
+-- (
+--     @ConferenceName NVARCHAR(50) = NULL, -- this is a parameter for the conference name, it is optional (it can be NULL)
+--     @DivisionName NVARCHAR(50) = NULL -- this is a parameter for the division name, it is optional (it can be NULL)
+--  )
+--   AS
+--   begin
+-- SELECT TeamName, TeamColors, Conference, Division 
+-- FROM Team T inner join ConferenceDivision C 
+-- on T.ConferenceDivisionID = C.ConferenceDivisionID
+-- Where Conference = IsNull(@ConferenceName, Conference) 
+-- and Division = IsNull(@DivisionName, Division)
+--     end
+
+-- EXEC procGetTeamsByConferenceDivision
+-- @ConferenceName = 'AFC',
+-- @DivisionName = 'North';
+-- go
