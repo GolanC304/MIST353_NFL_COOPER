@@ -42,7 +42,7 @@ def schedule_game_api(
         away_team_id=away_team_id,
         game_round=game_round,
         game_date=game_date,
-        game_start_time=game_start_time,
+        game_time=game_start_time,
         stadium_id=stadium_id,
         nfl_admin_id=nfl_admin_id
     )
